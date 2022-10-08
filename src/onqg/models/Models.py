@@ -39,21 +39,25 @@ class UnifiedModel(nn.Module):
         ## Node encode ##
         node_output, hidden_node = self.node_encoder(inputs['node-encoder'])
         ## encoder transform ##
-        inputs['encoder-transform']['seq_output'] = seq_output
-        inputs['encoder-transform']['hidden'] = hidden
-        node_input, hidden = self.encoder_transformer(inputs['encoder-transform'], max_length)
+        inputs['encoder-transform']['seq_output'] = node_output
+        inputs['encoder-transform']['hidden'] = hidden_node
+        node_input, graph_hidden = self.encoder_transformer(inputs['encoder-transform'], max_length)
         ## graph encode ##
         #print("=======================")
-        #print(node_input.size())
-        #print(node_output.size())
-        inputs['graph-encoder']['nodes'] = node_output
+        #print(hidden_node.size())
+        #print(graph_hidden.size())
+        inputs['graph-encoder']['nodes'] = node_input
         node_output, _ = self.graph_encoder(inputs['graph-encoder'])
+        #将图中结点信息与词嵌入进行融合
+        #node_output, hidden = self.aligner(node_output, seq_output)
 
         outputs = {}
 
         #========== classify =========#
         if self.model_type != 'generate':
+            #预测每个单词是否在问题中
             scores = self.classifier(node_output) if not self.decoder.layer_attn else self.classifier(node_output[-1])
+            #print(scores.size())
             inputs['decoder-transform']['scores'] = scores
             outputs['classification'] = scores   
         #========== generate =========#

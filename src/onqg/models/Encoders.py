@@ -18,7 +18,7 @@ class NodeEncoder(nn.Module):
             (2) hidden
     """
     def __init__(self, n_vocab, d_word_vec, d_model, n_layer,
-                 brnn, rnn, d_feat_vec, slf_attn, 
+                 brnn, rnn, slf_attn, 
                  dropout):
         self.name = 'rnn'
 
@@ -50,7 +50,7 @@ class NodeEncoder(nn.Module):
     @classmethod
     def from_opt(cls, opt):
         return cls(opt['n_vocab'], opt['d_word_vec'], opt['d_model'], opt['n_layer'],
-                   opt['brnn'], opt['rnn'], opt['d_feat_vec'], opt['slf_attn'], opt['dropout'])
+                   opt['brnn'], opt['rnn'], opt['slf_attn'], opt['dropout'])
 
     def forward(self, inputs):
         src_seq, lengths = inputs['src_seq'], inputs['lengths']

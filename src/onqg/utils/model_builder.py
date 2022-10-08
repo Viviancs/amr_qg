@@ -48,7 +48,7 @@ def build_NodeEncoder(opt):
         
     options = {'n_vocab':opt.src_vocab_size, 'd_word_vec':opt.d_word_vec, 'd_model':opt.d_seq_enc_model,
                 'n_layer':opt.n_seq_enc_layer, 'brnn':opt.brnn, 'rnn':opt.enc_rnn, 'slf_attn':opt.slf_attn, 
-                'd_feat_vec':opt.d_feat_vec, 'dropout':opt.dropout}
+                'dropout':opt.dropout}
         
     model = NodeEncoder.from_opt(options)
 

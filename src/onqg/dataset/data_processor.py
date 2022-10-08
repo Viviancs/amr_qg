@@ -72,7 +72,8 @@ def preprocess_batch(batch, n_edge_type, sparse=True, feature=False, dec_feature
     
     inputs['graph-encoder']['index'] = node_index  #每个点在字典中对应的id
     ###===== classifier =====###
-    classification = batch['node_feat'][0][-1]
+    #classification = batch['feat'][0][-1]
+    classification = batch['node_feat'][0][-1] #未融合信息前
     ###===== decoder transform =====###
     inputs['decoder-transform']['index'] = graph_index
     ###===== decoder =====###
@@ -97,7 +98,7 @@ def preprocess_batch(batch, n_edge_type, sparse=True, feature=False, dec_feature
         copy_gold, copy_switch = copy_gold[:, 1:], copy_switch[:, 1:]
 
     #node_feats = batch['node_feat'][0][1:-1] if node_feature else None
-    node_feats = [batch['node_feat'][0][0]] if node_feature else None
+    node_feats = [batch['node_feat'][0][0]] if node_feature else None   #只有一个特征
     inputs['graph-encoder']['feat_seqs'] = node_feats
 
     max_node_size = max(index_lengths)
