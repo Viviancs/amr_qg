@@ -1,14 +1,14 @@
 set -x
 
-DATAHOME=${HOME}/cs/amr_qg/data
-EXEHOME=${HOME}/cs/amr_qg/src
+DATAHOME=${HOME}/cs/qg/data
+EXEHOME=${HOME}/cs/qg/src
 
 
 cd ${EXEHOME}
-python train.py  -sequence_data '/data1/lkx/cs/amr_qg/data/train_data/mini/preprcessed_sequence_data_mini.pt' \
-       -graph_data '/data1/lkx/cs/amr_qg/data/train_data/mini/preprcessed_graph_data_mini.pt' \
-       -train_dataset '/data1/lkx/cs/amr_qg/data/train_data/mini/train_dataset_mini.pt' \
-       -valid_dataset '/data1/lkx/cs/amr_qg/data/train_data/mini/valid_dataset_mini.pt' \
+python train.py  -sequence_data '/data1/lkx/cs/qg/data/train_data/mini/preprcessed_sequence_data_mini.pt' \
+       -graph_data '/data1/lkx/cs/qg/data/train_data/mini/preprcessed_graph_data_mini.pt' \
+       -train_dataset '/data1/lkx/cs/qg/data/train_data/mini/train_dataset_mini.pt' \
+       -valid_dataset '/data1/lkx/cs/qg/data/train_data/mini/valid_dataset_mini.pt' \
        -epoch 1 \
        -batch_size 4 -eval_batch_size 4 \
        -training_mode classify \
@@ -16,6 +16,7 @@ python train.py  -sequence_data '/data1/lkx/cs/amr_qg/data/train_data/mini/prepr
        -sparse 0 \
        -copy \
        -coverage -coverage_weight 0.4 \
+       -feature \
        -node_feature \
        -d_word_vec 256 \
        -d_seq_enc_model 256 -d_graph_enc_model 256 -n_graph_enc_layer 3 \
@@ -23,10 +24,10 @@ python train.py  -sequence_data '/data1/lkx/cs/amr_qg/data/train_data/mini/prepr
        -d_dec_model 256 -n_dec_layer 1 -dec_rnn gru \
        -maxout_pool_size 2 -n_warmup_steps 10000 \
        -dropout 0.5 -attn_dropout 0.1 \
-       -save_mode best -save_model '/data1/lkx/cs/amr_qg/model/classifier' \
-       -log_home '/data1/lkx/cs/amr_qg/logs' \
-       -logfile_train '/data1/lkx/cs/amr_qg/logs/train_classifier' \
-       -logfile_dev '/data1/lkx/cs/amr_qg/logs/valid_classifier' \
+       -save_mode best -save_model '/data1/lkx/cs/qg/model/classifier' \
+       -log_home '/data1/lkx/cs/qg/logs' \
+       -logfile_train '/data1/lkx/cs/qg/logs/train_classifier' \
+       -logfile_dev '/data1/lkx/cs/qg/logs/valid_classifier' \
        -translate_ppl 15 \
        -curriculum 0  -extra_shuffle -optim adam \
        -learning_rate 0.00025 -learning_rate_decay 0.75 \
