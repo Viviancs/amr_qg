@@ -86,7 +86,7 @@ def preprocess_batch(batch, n_edge_type, sparse=True, feature=False, dec_feature
     if feature:
         n_all_feature = len(batch['feat'][0])
         # split all features into src and tgt parts, src_feats are those embedded in the encoder
-        src_feats = batch['feat'][0][:n_all_feature - dec_feature]
+        src_feats = batch['feat'][0][:n_all_feature - dec_feature - 1]
         if dec_feature:
             # dec_feature: the number of features embedded in the decoder
             tgt_feats = batch['feat'][0][n_all_feature - dec_feature:]

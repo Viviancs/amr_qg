@@ -112,7 +112,7 @@ class RNNEncoder(nn.Module):
             self.feat_embs = nn.ModuleList([
                 nn.Embedding(n_f_vocab, d_feat_vec, padding_idx=Constants.PAD) for n_f_vocab in feat_vocab
             ])
-            input_size += len(feat_vocab) * d_feat_vec   #词嵌入和特征嵌入的总维度
+            input_size += (len(feat_vocab) - 1)* d_feat_vec   #词嵌入和特征嵌入的总维度
         
 
         ##Attention
@@ -140,6 +140,7 @@ class RNNEncoder(nn.Module):
         lengths = torch.LongTensor(lengths.data.view(-1).tolist()) #转化为一维并变成列表
         
         enc_input = self.word_emb(src_seq)
+        
         if self.feature:
             feat_outputs = [feat_emb(feat_seq) for feat_seq, feat_emb in zip(feat_seqs, self.feat_embs)]
             feat_outputs = torch.cat(feat_outputs, dim=2)
@@ -193,7 +194,7 @@ class GraphEncoder(nn.Module):
                 nn.Embedding(n_f_vocab, d_feat_vec, padding_idx=Constants.PAD) for n_f_vocab in feat_vocab
             ])
             #self.hidden_size += d_feat_vec * len(feat_vocab)  
-            self.feature_transform = nn.Linear(self.hidden_size + d_feat_vec * len(feat_vocab), self.hidden_size)
+            self.feature_transform = nn.Linear(self.hidden_size + d_feat_vec * (len(feat_vocab) - 1), self.hidden_size)
         ###=== edge embedding ===###
         # self.edge_in_emb = nn.Embedding(n_edge_type, self.hidden_size * d_model, padding_idx=Constants.PAD)
         # self.edge_out_emb = nn.Embedding(n_edge_type, self.hidden_size * d_model, padding_idx=Constants.PAD)
@@ -230,7 +231,7 @@ class GraphEncoder(nn.Module):
         ###=== get embeddings ===###
         feat_hidden = None
         #print("========")
-        #print(node_output.size())
+        #print(len(node_feats))
         if self.feature:         
             feat_hidden = [feat_emb(node_feat) for node_feat, feat_emb in zip(node_feats, self.feat_embs)]   
             feat_hidden = torch.cat(feat_hidden, dim=2)     # batch_size x node_num x (hidden_size - d_model)
