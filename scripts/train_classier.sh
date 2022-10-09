@@ -5,11 +5,11 @@ EXEHOME=${HOME}/cs/qg/src
 
 
 cd ${EXEHOME}
-python train.py  -sequence_data '/data1/lkx/cs/qg/data/train_data/mini/preprcessed_sequence_data_mini.pt' \
-       -graph_data '/data1/lkx/cs/qg/data/train_data/mini/preprcessed_graph_data_mini.pt' \
-       -train_dataset '/data1/lkx/cs/qg/data/train_data/mini/train_dataset_mini.pt' \
-       -valid_dataset '/data1/lkx/cs/qg/data/train_data/mini/valid_dataset_mini.pt' \
-       -epoch 1 \
+python train.py  -sequence_data '/data1/lkx/cs/qg/data/train_data/preprcessed_sequence_data.pt' \
+       -graph_data '/data1/lkx/cs/qg/data/train_data/preprcessed_graph_data.pt' \
+       -train_dataset '/data1/lkx/cs/qg/data/train_data/train_dataset.pt' \
+       -valid_dataset '/data1/lkx/cs/qg/data/train_data/valid_dataset.pt' \
+       -epoch 20 \
        -batch_size 4 -eval_batch_size 4 \
        -training_mode classify \
        -max_token_src_len 200 -max_token_tgt_len 50 \
@@ -31,7 +31,7 @@ python train.py  -sequence_data '/data1/lkx/cs/qg/data/train_data/mini/preprcess
        -translate_ppl 15 \
        -curriculum 0  -extra_shuffle -optim adam \
        -learning_rate 0.00025 -learning_rate_decay 0.75 \
-       -valid_steps 100 \
+       -valid_steps 500 \
        -decay_steps 500 -start_decay_steps 5000 -decay_bad_cnt 5 \
        -max_grad_norm 5 -max_weight_value 20 \
        -gpus 0 
