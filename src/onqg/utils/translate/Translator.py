@@ -124,8 +124,9 @@ class Translator(object):
             inputs['decoder']['src_seq'] = inputs['decoder']['src_seq'].repeat(1, n_bm).view(n_inst * n_bm, len_s)
             inputs['decoder']['ans_seq'] = inputs['decoder']['ans_seq'].repeat(1, n_bm).view(n_inst * n_bm, -1)
             inputs['decoder']['hidden'] = hidden.repeat(1, n_bm).view(n_inst * n_bm, -1)      # [h.repeat(1, n_bm).view(n_inst * n_bm, -1) for h in hidden]
-            inputs['decoder']['feat_seqs'] = [feat_seq.repeat(1, n_bm).view(n_inst * n_bm, len_s) 
-                                                for feat_seq in inputs['decoder']['feat_seqs']] if self.opt.feature else None
+            inputs['decoder']['feat_seqs'] = None
+            #inputs['decoder']['feat_seqs'] = [feat_seq.repeat(1, n_bm).view(n_inst * n_bm, len_s) 
+            #                                    for feat_seq in inputs['decoder']['feat_seqs']] if self.opt.feature else None
 
             n_inst_g, len_s_g, d_h_g = graph_hidden.size()
             inputs['decoder']['graph_hidden'] = graph_hidden.repeat(1, n_bm, 1).view(n_inst_g * n_bm, len_s_g, d_h_g )
@@ -179,9 +180,10 @@ class Translator(object):
                 inputs['decoder']['ans_seq'] = collect_active_part(inputs['decoder']['ans_seq'], active_inst_idx, n_prev_active_inst, n_bm)
                 inputs['decoder']['hidden'] = collect_active_part(inputs['decoder']['hidden'], active_inst_idx, n_prev_active_inst, n_bm)
                 inputs['decoder']['graph_hidden'] = collect_active_part(inputs['decoder']['graph_hidden'], active_inst_idx, n_prev_active_inst, n_bm)
-                inputs['decoder']['feat_seqs'] = [collect_active_part(feat_seq, active_inst_idx, n_prev_active_inst, n_bm) 
-                                                    for feat_seq in inputs['decoder']['feat_seqs']] if self.opt.feature else None
-                
+                inputs['decoder']['feat_seqs'] = None
+                #inputs['decoder']['feat_seqs'] = [collect_active_part(feat_seq, active_inst_idx, n_prev_active_inst, n_bm) 
+                #                                    for feat_seq in inputs['decoder']['feat_seqs']] if self.opt.feature else None
+
                 inst_idx_to_position_map = get_inst_idx_to_tensor_position_map(active_inst_idx_list)
 
         ### ========== Get hypothesis ========== ###
