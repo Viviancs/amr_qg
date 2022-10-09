@@ -17,7 +17,7 @@ class UnifiedModel(nn.Module):
 
     Output: results output from the Decoder (type: dict)
     '''
-    def __init__(self, model_type, seq_encoder, node_encoder, graph_encoder, encoder_transformer, 
+    def __init__(self, model_type, seq_encoder, node_encoder, graph_encoder, encoder_transformer, aligner,
                  decoder, decoder_transformer):
         super(UnifiedModel, self).__init__()
 
@@ -28,6 +28,8 @@ class UnifiedModel(nn.Module):
 
         self.encoder_transformer = encoder_transformer
         self.graph_encoder = graph_encoder
+
+        self.aligner = aligner
         
         self.decoder_transformer = decoder_transformer
         self.decoder = decoder
@@ -49,7 +51,7 @@ class UnifiedModel(nn.Module):
         inputs['graph-encoder']['nodes'] = node_input
         node_output, _ = self.graph_encoder(inputs['graph-encoder'])
         #将图中结点信息与词嵌入进行融合
-        #node_output, hidden = self.aligner(node_output, seq_output)
+        #node_output, hidden = self.aligner()
 
         outputs = {}
 

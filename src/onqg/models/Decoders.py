@@ -163,9 +163,7 @@ class RNNDecoder(nn.Module):
         #print("seq", enc_output.size())
         #print("graph", graph_hidden.size())
         #print("===========")
-        output = dec_input
-        output = self.decoder(output,     #mask机制
-                enc_output,
+        output = self.decoder(enc_output,     #mask机制
                 graph_hidden               
             )        
         #print(output.size())

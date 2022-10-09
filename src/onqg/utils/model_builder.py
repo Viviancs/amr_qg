@@ -2,7 +2,7 @@ import math
 import torch.nn as nn
 
 from onqg.models.Models import UnifiedModel
-from onqg.models.Encoders import RNNEncoder, GraphEncoder, EncoderTransformer, SparseGraphEncoder, TransfEncoder, NodeEncoder
+from onqg.models.Encoders import RNNEncoder, GraphEncoder, EncoderTransformer, SparseGraphEncoder, TransfEncoder, NodeEncoder, Aligner
 from onqg.models.Decoders import RNNDecoder, DecoderTransformer
 
 
@@ -53,6 +53,13 @@ def build_NodeEncoder(opt):
     model = NodeEncoder.from_opt(options)
 
     return model  
+
+def build_aligner(opt):
+    options = {
+
+    }
+    model = Aligner.from_opt(options)
+    return model
 
 def build_decoder(opt, device):
     if opt.dec_feature:
@@ -116,10 +123,11 @@ def build_model(opt, device, separate=-1, checkpoint=None):
         )
     else:
         graph_encoder.activate = nn.Tanh()
+    aligner = build_aligner(opt)
     decoder_transformer = DecoderTransformer(opt.layer_attn, device=device)
     decoder = build_decoder(opt, device)
     
-    model = UnifiedModel(opt.training_mode, seq_encoder, node_encoder, graph_encoder, encoder_transformer,
+    model = UnifiedModel(opt.training_mode, seq_encoder, node_encoder, graph_encoder, encoder_transformer, aligner, 
                          decoder, decoder_transformer)
     #model = UnifiedModel(opt.training_mode, seq_encoder, graph_encoder, encoder_transformer,
     #                     decoder, decoder_transformer)

@@ -7,6 +7,7 @@ import onqg.dataset.Constants as Constants
 
 from onqg.models.modules.Attention import GatedSelfAttention, ConcatAttention
 from onqg.models.modules.Layers import GraphEncoderLayer, SparseGraphEncoderLayer
+from onqg.models.transformer import DoubleAttnTransformerDecoderLayer, DoubleAttnTransformerDecoder
 
 # from pytorch_pretrained_bert import BertModel
 class NodeEncoder(nn.Module):
@@ -454,5 +455,45 @@ class TransfEncoder(nn.Module):
         hidden = [layer_output.transpose(0, 1)[0] for layer_output in enc_outputs]
         if self.layer_attn:
             enc_output = enc_outputs
+            
+        return enc_output, hidden
+
+
+class Aligner(nn.Module):
+    """
+    Input: (1) inputs['seq_input']
+           (2) inputs['node_input']
+    Output: (1) enc_output
+            (2) hidden
+    """
+    def __init__(self):
+        super(Aligner, self).__init__()
+        self.decoder_layer = DoubleAttnTransformerDecoderLayer(
+                d_model=256,
+                d_sent=256,
+                d_con=256,
+                heads=8,
+                d_ff=1024,
+                dropout=0.1,
+                att_drop=0.1,
+                dual_enc=True,               
+            )
+
+        decoder_norm = nn.LayerNorm(256)
+        self.decoder = DoubleAttnTransformerDecoder(self.decoder_layer, 4, decoder_norm)
+    
+    @classmethod
+    def from_opt(cls, opt):
+        return cls()
+
+    def forward(self, inputs, return_attns=False):
+
+        output = dec_input
+        output = self.decoder(output,     #mask机制
+                enc_output,
+                graph_hidden               
+            )        
+        #print(output.size())
+        enc_output = torch.cat((output, enc_output), dim=-1)
             
         return enc_output, hidden

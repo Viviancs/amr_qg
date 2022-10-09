@@ -43,7 +43,6 @@ class DoubleAttnTransformerDecoderLayer(nn.Module):
     def forward(
         self,
         tgt: Tensor,
-        sent_memory: Tensor,
         graph_memory: Tensor,
         tgt_mask: Optional[Tensor] = None,
         sent_memory_mask: Optional[Tensor] = None,
@@ -76,18 +75,11 @@ class DoubleAttnTransformerDecoderLayer(nn.Module):
         tgt2 = self.self_attn(tgt, tgt, tgt, mask=tgt_mask, key_padding_mask=tgt_key_padding_mask)[0]
         tgt = tgt + self.dropout1(tgt2)
         tgt = self.norm1(tgt)
-        sent_tgt2 = self.sent_cross_attn(
-            tgt, sent_memory, sent_memory, mask=sent_memory_mask, key_padding_mask=sent_memory_key_padding_mask)[0]
         #print("sent_tgt2:", sent_tgt2.size())
-        if self.dual_enc:
-            graph_tgt2 = self.graph_cross_attn(
-                sent_memory, graph_memory, graph_memory, mask=graph_memory_mask, key_padding_mask=graph_memory_key_padding_mask)[0]
+        graph_tgt2 = self.graph_cross_attn(
+                tgt, graph_memory, graph_memory, mask=graph_memory_mask, key_padding_mask=graph_memory_key_padding_mask)[0]
             #print("graph_tgt2:", graph_tgt2.size())
             #tgt2 = self.fuse_linear(torch.cat([sent_tgt2, graph_tgt2], dim=-1))
-        else:
-            if self.kv_map is not None:
-                sent_tgt2 = self.kv_map(sent_tgt2)
-            tgt2 = sent_tgt2
         
         #tgt = tgt + self.dropout2(tgt2)
         #tgt = self.norm2(tgt)
@@ -108,7 +100,6 @@ class DoubleAttnTransformerDecoder(nn.Module):
     def forward(
         self,
         tgt: Tensor,
-        sent_memory: Tensor,
         graph_memory: Tensor,
         tgt_mask: Optional[Tensor] = None,
         sent_memory_mask: Optional[Tensor] = None,
@@ -121,7 +112,6 @@ class DoubleAttnTransformerDecoder(nn.Module):
         for mod in self.layers:
             output = mod(
                 output,
-                sent_memory,
                 graph_memory,
                 tgt_mask=tgt_mask,
                 sent_memory_mask=sent_memory_mask,
