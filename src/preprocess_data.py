@@ -113,8 +113,8 @@ def list_to_matrix(indices, edges):
 def get_data(dataset):
   final_indexes = []
   i = 0
-  graph_dataset = {'indexes': [], 'is_ans': [], 'edge_in':[], 'edge_out':[]}
-  rst = {'src':[], 'tgt':[], 'amr_node': [],'ans':[], 'is_ans':[], 'feature':[]}
+  graph_dataset = {'indexes': [], 'is_ans': [], 'is_tgt':[], 'edge_in':[], 'edge_out':[]}
+  rst = {'src':[], 'tgt':[], 'amr_node': [],'ans':[], 'is_ans':[], 'is_tgt':[], 'feature':[]}
   for nodes, in_neigh_indices, in_neigh_edges, out_neigh_indices, out_neigh_edges, sources, sentences, answer in dataset: 
     src_len = len(sources)
     tgt_len = len(sentences)
@@ -127,22 +127,32 @@ def get_data(dataset):
         rst['amr_node'].append(nodes)
         #print(sentences)
         sr_tags = []
+        sr_tg_tags = []
         for w in enumerate(sources):
           if w in answer:
             sr_tag = 1
           else:
             sr_tag = 0
+          if w in sentences:
+            sr_tg_tag = 1
+          else:
+            sr_tg_tag = 0
           sr_tags.append(sr_tag)
+          sr_tg_tags.append(sr_tg_tag)
 
-        node_indexes, ans_tags = [], []
+        node_indexes, ans_tags, tgt_tags = [], [], []
         for idx, n in enumerate(nodes):
           node_indexes.append([idx])
           if n in answer:
             tag = 1
           else:
             tag = 0
+          if n in sentences:
+            tg_tag = 1
+          else:
+            tg_tag = 0
           ans_tags.append(tag)
-           
+          tgt_tags.append(tg_tag) 
 
         final_indexes.append(i)
         i += 1
@@ -154,14 +164,16 @@ def get_data(dataset):
 
         graph_dataset['indexes'].append(node_indexes)
         graph_dataset['is_ans'].append(ans_tags)
+        graph_dataset['is_tgt'].append(tgt_tags)
         graph_dataset['edge_in'].append(edge_in)
         graph_dataset['edge_out'].append(edge_out)
         rst['is_ans'].append(sr_tags)
+        rst['is_tgt'].append(sr_tg_tags)
     #print(edge_in)
 
-  graph_dataset['features'] = [graph_dataset['is_ans']]
+  graph_dataset['features'] = [graph_dataset['is_ans'], graph_dataset['is_tgt']]
   #graph_dataset['features'] = [graph_dataset['is_ans']]
-  rst['features'] = [rst['is_ans']]
+  rst['features'] = [rst['is_ans'], rst['is_tgt']]
 
   return rst, graph_dataset, final_indexes
 
