@@ -14,7 +14,7 @@ from tqdm import tqdm
 from pathlib import Path
 import string
 
-punctuation_string = string.punctuation
+
 
 json_load = lambda x: json.load(codecs.open(x, 'r', encoding='utf-8'))
 #json_load = lambda x: json.load(codecs.open(x, 'r', encoding='utf-8'),strict=False)
@@ -141,6 +141,7 @@ def is_match(amr_lst):
     return True
 
 def read_amr_file(inpath):
+    punctuation_string = string.punctuation
     data = json_load(inpath)
     nodes = [] # [batch, node_num,]
     in_neigh_indices = [] # [batch, node_num, neighbor_num,]
@@ -169,18 +170,24 @@ def read_amr_file(inpath):
 
       ss = AMRSentence([], [], [])
       flag = True
-      sent = sample["question"].strip().split()
+      sent = sample["question"]
       ans = sample["answer"].strip().split()
       for evi in sample["evidence"]:
         amr = evi["amr"]
-        text = evi["text"][0].strip("\n").split()        
+        #print(punctuation_string)
+
+        txt = evi["text"][0]
+        for i in punctuation_string:
+          txt = str(txt).replace(i, '')
+        text = txt.split() 
+
         title = evi["title"]
         node = []
         edge = []
         amr_lst = amr.strip().split()
-
+        #print('amr:', amr_lst)
+        #print('text:', text)
         if(amr_lst[0] == 'FAILED_TO_PARSE'):
-
           continue
         else:
           if(is_match(amr_lst)):
@@ -227,11 +234,12 @@ def read_amr_file(inpath):
         out_neigh_edges.append(out_edges)
 
         for i in punctuation_string:
-          src = str(src).replace(i, '')
           sent = str(sent).replace(i, '')
         #src = re.sub(r'[^a-zA-Z0-9\s]','',string= str(src)).split()
         #sent = re.sub(r'[^a-zA-Z0-9\s]','',string= sent)
-        sources.append(src.split())
+        #print('src:', src)
+        #print(sent.split())
+        sources.append(src)
         sentences.append(sent.split())
         answer.append(ans)
 
@@ -243,4 +251,4 @@ def read_amr_file(inpath):
             max_node, max_in_neigh, max_out_neigh, max_sent 
 
 if __name__ == '__main__':
-  read_amr_file(r'D:\code\amrQG_demo\data\merge_data\valid_with_simple_amr.json')
+  read_amr_file(r'/data1/lkx/cs/qg/data/train_data/mini/valid_with_simple_amr.json')
