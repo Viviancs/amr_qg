@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.autograd import Variable
 
 import onqg.dataset.Constants as Constants
@@ -66,7 +67,8 @@ class RNNDecoder(nn.Module):
 
         self.answer = answer
         tmp_in = d_word_vec if answer else d_rnn_enc_model
-        self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=n_rnn_enc_layer)
+        #self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=n_rnn_enc_layer)
+        self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=2)
 
         self.feature = False if not feat_vocab else True
         if self.feature:
@@ -93,6 +95,10 @@ class RNNDecoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.device = device
 
+        self.graph_pool = self.graph_maxpool
+        self.linear_max = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
+        #self.enc_dec_adapter = nn.Linear(self.hidden_size, self.hidden_size)
+
     @classmethod
     def from_opt(cls, opt):
         return cls(opt['n_vocab'], opt['ans_n_vocab'], opt['d_word_vec'], opt['d_model'], opt['n_layer'], opt['n_rnn_enc_layer'],
@@ -110,12 +116,27 @@ class RNNDecoder(nn.Module):
         hidden_sizes = (batch_size, self.d_enc_model)
         return Variable(context.data.new(*hidden_sizes).zero_(), requires_grad=False)
 
+    def graph_maxpool(self, node_state):
+        # Maxpool
+        # Shape: (batch_size, hidden_size, num_entities)
+        node_embedding_p = self.linear_max(node_state).transpose(-1, -2)
+        graph_embedding = F.max_pool1d(node_embedding_p, kernel_size=node_embedding_p.size(-1)).squeeze(-1)
+        return graph_embedding
+    
     def forward(self, inputs, max_length=300):
         tgt_seq, src_seq, ans_seq = inputs['tgt_seq'], inputs['src_seq'], inputs['ans_seq'] #[batchsize, seqlength]
         #print(tgt_seq.size())
         enc_output, hidden = inputs['enc_output'], inputs['hidden']
         feat_seqs = inputs['feat_seqs']
         graph_hidden = inputs['graph_hidden'] #[batch_size, node_size, embedd]
+
+        #对node信息进行线性映射并通过maxpooling得到graph-level信息
+        #print(graph_hidden.size())
+        #graph_embedding = self.graph_pool(graph_hidden).unsqueeze(0)
+        graph_embedding = self.graph_pool(graph_hidden)
+        #print(graph_embedding.size())
+        #print(hidden.size())
+        hidden = torch.cat((graph_embedding, hidden), dim=-1) #将rnn隐藏层与graph隐藏层进行融合
 
         src_pad_mask = Variable(src_seq.data.eq(Constants.PAD).float(), requires_grad=False, volatile=False)
         if self.layer_attn:
@@ -344,7 +365,8 @@ class DecoderTransformer(nn.Module):
         #else: 
         #    enc_output = torch.cat((graph_hidden_states, seq_output), dim=-1)
         
-
+        #print(hidden.size()) #batch_size*dim
+        #print(graph_hidden_states.size())  #batch_size*node_size*dim
         return seq_output, distribution, hidden, graph_hidden_states
         #return enc_output, distribution, hidden, graph_hidden_states
 
