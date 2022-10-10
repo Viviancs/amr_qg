@@ -12,7 +12,9 @@ from collections import defaultdict
 from copy import deepcopy
 from tqdm import tqdm
 from pathlib import Path
+import string
 
+punctuation_string = string.punctuation
 
 json_load = lambda x: json.load(codecs.open(x, 'r', encoding='utf-8'))
 #json_load = lambda x: json.load(codecs.open(x, 'r', encoding='utf-8'),strict=False)
@@ -171,17 +173,14 @@ def read_amr_file(inpath):
       ans = sample["answer"].strip().split()
       for evi in sample["evidence"]:
         amr = evi["amr"]
-        text = evi["text"][0].strip("\n").split()
-        
+        text = evi["text"][0].strip("\n").split()        
         title = evi["title"]
         node = []
         edge = []
-        #print(amr)
-        #amr = re.sub(u"\\(|\\)","",amr)
         amr_lst = amr.strip().split()
-        #print("amr_lst:", amr_lst)
+
         if(amr_lst[0] == 'FAILED_TO_PARSE'):
-          #add_node(text, node, edge)
+
           continue
         else:
           if(is_match(amr_lst)):
@@ -227,8 +226,13 @@ def read_amr_file(inpath):
         out_neigh_indices.append(out_indices)
         out_neigh_edges.append(out_edges)
 
-        sources.append(src)
-        sentences.append(sent)
+        for i in punctuation_string:
+          src = str(src).replace(i, '')
+          sent = str(sent).replace(i, '')
+        #src = re.sub(r'[^a-zA-Z0-9\s]','',string= str(src)).split()
+        #sent = re.sub(r'[^a-zA-Z0-9\s]','',string= sent)
+        sources.append(src.split())
+        sentences.append(sent.split())
         answer.append(ans)
 
         max_in_neigh = max(max_in_neigh, max(len(x) for x in in_indices))

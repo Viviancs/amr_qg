@@ -243,7 +243,7 @@ class SupervisedTrainer(object):
                                                                device=device)
             copy_gold, copy_switch = copy[0], copy[1]
             sample_num += len(golds[0])
-                
+            #print(golds[1])    
             ##### ==================== forward ==================== #####
             self.model.zero_grad()
             self.optimizer.zero_grad()

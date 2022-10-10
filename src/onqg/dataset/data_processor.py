@@ -72,8 +72,8 @@ def preprocess_batch(batch, n_edge_type, sparse=True, feature=False, dec_feature
     
     inputs['graph-encoder']['index'] = node_index  #每个点在字典中对应的id
     ###===== classifier =====###
-    #classification = batch['feat'][0][-1]
-    classification = batch['node_feat'][0][-1] #未融合信息前
+    classification = batch['feat'][0][-1]
+    #classification = batch['node_feat'][0][-1] #未融合信息前
     ###===== decoder transform =====###
     inputs['decoder-transform']['index'] = graph_index
     ###===== decoder =====###

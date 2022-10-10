@@ -58,7 +58,7 @@ class UnifiedModel(nn.Module):
         #========== classify =========#
         if self.model_type != 'generate':
             #预测每个单词是否在问题中
-            scores = self.classifier(node_output) if not self.decoder.layer_attn else self.classifier(node_output[-1])
+            scores = self.classifier(seq_output) if not self.decoder.layer_attn else self.classifier(seq_output[-1])
             #print(scores.size())
             inputs['decoder-transform']['scores'] = scores
             outputs['classification'] = scores   

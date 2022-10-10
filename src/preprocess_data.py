@@ -125,32 +125,36 @@ def get_data(dataset):
         #if answer:
         rst['ans'].append(answer)
         rst['amr_node'].append(nodes)
-        #print(sentences)
+        #print()
         sr_tags = []
         sr_tg_tags = []
-        for w in enumerate(sources):
-          if w in answer:
+        #print(sources)
+        #print(sentences)
+        for w in sources:
+          if w.lower() in [s.lower() for s in answer]:
             sr_tag = 1
           else:
             sr_tag = 0
-          if w in sentences:
+          if w.lower() in [s.lower() for s in sentences]:
             sr_tg_tag = 1
           else:
             sr_tg_tag = 0
+          #print(sr_tg_tag)
           sr_tags.append(sr_tag)
           sr_tg_tags.append(sr_tg_tag)
 
         node_indexes, ans_tags, tgt_tags = [], [], []
         for idx, n in enumerate(nodes):
           node_indexes.append([idx])
-          if n in answer:
+          if n.lower() in [s.lower() for s in answer]:
             tag = 1
           else:
             tag = 0
-          if n in sentences:
+          if n.lower() in [s.lower() for s in sentences]:
             tg_tag = 1
           else:
             tg_tag = 0
+          
           ans_tags.append(tag)
           tgt_tags.append(tg_tag) 
 

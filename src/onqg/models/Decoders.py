@@ -68,7 +68,7 @@ class RNNDecoder(nn.Module):
         self.answer = answer
         tmp_in = d_word_vec if answer else d_rnn_enc_model
         #self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=n_rnn_enc_layer)
-        self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=2)
+        self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=1)
 
         self.feature = False if not feat_vocab else True
         if self.feature:
@@ -131,12 +131,8 @@ class RNNDecoder(nn.Module):
         graph_hidden = inputs['graph_hidden'] #[batch_size, node_size, embedd]
 
         #对node信息进行线性映射并通过maxpooling得到graph-level信息
-        #print(graph_hidden.size())
-        #graph_embedding = self.graph_pool(graph_hidden).unsqueeze(0)
-        graph_embedding = self.graph_pool(graph_hidden)
-        #print(graph_embedding.size())
-        #print(hidden.size())
-        hidden = torch.cat((graph_embedding, hidden), dim=-1) #将rnn隐藏层与graph隐藏层进行融合
+        #graph_embedding = self.graph_pool(graph_hidden)
+        #hidden = torch.cat((graph_embedding, hidden), dim=-1) #将rnn隐藏层与graph隐藏层进行融合
 
         src_pad_mask = Variable(src_seq.data.eq(Constants.PAD).float(), requires_grad=False, volatile=False)
         if self.layer_attn:
@@ -302,12 +298,14 @@ class DecoderTransformer(nn.Module):
         graph_output, indexes_list = inputs['graph_output'], inputs['index']
 
         graph_length = graph_output.size(1)
+        src_length = seq_output.size(1)
         
         batch_size, seq_length = seq_output.size(0), seq_output.size(1)
         dim_graph_enc = graph_output.size(-1) if not self.layer_attn else graph_output[-1].size(-1)
         if 'scores' in inputs:
             scores = inputs['scores']
-            distribution = torch.full((batch_size, graph_length), 1e-8).to(self.device)
+            #distribution = torch.full((batch_size, graph_length), 1e-8).to(self.device)
+            distribution = torch.full((batch_size, src_length), 1e-8).to(self.device)
         
         if self.layer_attn:
             
@@ -316,6 +314,7 @@ class DecoderTransformer(nn.Module):
             graph_hidden_states = torch.full((batch_size, graph_length, dim_graph_enc), 1e-8).to(self.device)
         
         graph_node_sizes = torch.full((batch_size, graph_length), 0).to(self.device)
+        src_node_sizes = torch.full((batch_size, src_length), 1).to(self.device)
 
         for sample_idx, indexes in enumerate(indexes_list):
             ##=== for each sample ===##
@@ -329,9 +328,13 @@ class DecoderTransformer(nn.Module):
                     else:
                         graph_hidden_states[sample_idx].narrow(0, i, 1).add_(graph_output[sample_idx][node_idx])
                     graph_node_sizes[sample_idx][i] += 1
-                    if 'scores' in inputs:
-                        distribution[sample_idx][i] = scores[sample_idx][node_idx]
-        
+                    
+        for i in range(batch_size):
+            for j in range(src_length):
+                if 'scores' in inputs:
+                    #print(scores[i][j])
+                    distribution[i][j] = scores[i][j]
+
         for i in range(batch_size):
             for j in range(graph_length):
                 if graph_node_sizes[i][j].item() < 1:
@@ -342,7 +345,7 @@ class DecoderTransformer(nn.Module):
         else:
             graph_hidden_states = graph_hidden_states / graph_node_sizes.unsqueeze(2).repeat(1, 1, dim_graph_enc)
         if 'scores' in inputs:
-            distribution = distribution / graph_node_sizes
+            distribution = distribution / src_node_sizes
 
         if isinstance(hidden, tuple) or isinstance(hidden, list) or hidden.dim() == 3:
             hidden = [h for h in hidden]
