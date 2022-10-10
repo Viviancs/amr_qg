@@ -238,7 +238,7 @@ def sequence_data(tr_dataset, va_dataset):
 
   train_corpus = train_src + train_ans + train_node  #包含source/answer/graph中所有的word
   ans_corpus = train_src + train_ans
-  options = {'lower':True, 'mode':'frequency', 'tgt':False, 'size':opt.src_vocab_size, 'frequency':opt.src_words_min_frequency}
+  options = {'lower':True, 'mode':'size', 'tgt':False, 'size':opt.src_vocab_size, 'frequency':opt.src_words_min_frequency}
   
   src_vocab = Vocab.from_opt(corpus=train_corpus, opt=options)
   ans_vocab = Vocab.from_opt(corpus=ans_corpus, opt=options)
