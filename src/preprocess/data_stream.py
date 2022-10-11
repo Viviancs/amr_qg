@@ -13,8 +13,8 @@ from copy import deepcopy
 from tqdm import tqdm
 from pathlib import Path
 import string
-
-
+import nltk
+nltk.download('averaged_perceptron_tagger')
 
 json_load = lambda x: json.load(codecs.open(x, 'r', encoding='utf-8'))
 #json_load = lambda x: json.load(codecs.open(x, 'r', encoding='utf-8'),strict=False)
@@ -149,7 +149,8 @@ def read_amr_file(inpath):
     out_neigh_indices = [] # [batch, node_num, neighbor_num,]
     out_neigh_edges = []
     sources = [] # [batch, sent_length,]
-    sentences = [] # [batch, sent_length,]
+    sentences = [] # [batch, tgt_length]
+    pos_tags = []
     answer = []
     max_in_neigh = 0
     max_out_neigh = 0
@@ -163,6 +164,7 @@ def read_amr_file(inpath):
       amr_node = []
       amr_edge = []
       src = []
+      pos_tag = []
       #if(config.ADD_TITLE):  ###添加title信息
         #title_node = sample["title"].strip().split()
         #title_edge = 
@@ -235,10 +237,13 @@ def read_amr_file(inpath):
 
         for i in punctuation_string:
           sent = str(sent).replace(i, '')
-        #src = re.sub(r'[^a-zA-Z0-9\s]','',string= str(src)).split()
-        #sent = re.sub(r'[^a-zA-Z0-9\s]','',string= sent)
         #print('src:', src)
         #print(sent.split())
+        pos = nltk.pos_tag(src)
+        for data  in pos:
+          pos_tag.append(data[1])
+        #print(pos_tag)
+        pos_tags.append(pos_tag)
         sources.append(src)
         sentences.append(sent.split())
         answer.append(ans)
@@ -247,7 +252,7 @@ def read_amr_file(inpath):
         max_out_neigh = max(max_out_neigh, max(len(x) for x in out_indices))
         max_node = max(max_node, len(ss.node))
         max_sent = max(max_sent, len(sent))
-    return zip(nodes, in_neigh_indices, in_neigh_edges, out_neigh_indices, out_neigh_edges, sources, sentences, answer), \
+    return zip(nodes, in_neigh_indices, in_neigh_edges, out_neigh_indices, out_neigh_edges, sources, sentences, answer, pos_tags), \
             max_node, max_in_neigh, max_out_neigh, max_sent 
 
 if __name__ == '__main__':

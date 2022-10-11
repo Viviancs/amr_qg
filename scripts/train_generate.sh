@@ -9,7 +9,7 @@ python train.py \
        -graph_data '/data1/lkx/cs/qg/data/train_data/preprcessed_graph_data.pt' \
        -train_dataset '/data1/lkx/cs/qg/data/train_data/train_dataset.pt' \
        -valid_dataset '/data1/lkx/cs/qg/data/train_data/valid_dataset.pt' \
-       -checkpoint "/data1/lkx/cs/qg/model/classifier_gl_cls_94.48268_accuracy.chkpt" \
+       -checkpoint "/data1/lkx/cs/qg/model/classifier/classifier_gl_cls_78.28538_accuracy.chkpt" \
        -epoch 30 \
        -batch_size 4 -eval_batch_size 4 \
        -training_mode generate \
@@ -25,8 +25,8 @@ python train.py \
        -d_dec_model 256 -n_dec_layer 1 -dec_rnn gru \
        -maxout_pool_size 2 -n_warmup_steps 10000 \
        -dropout 0.5 -attn_dropout 0.1 \
-       -gpus 0 \
-       -save_mode best -save_model "/data1/lkx/cs/qg/model/generator_gl" \
+       -gpus 3 \
+       -save_mode best -save_model "/data1/lkx/cs/qg/model/generator/generator_gl" \
        -log_home '/data1/lkx/cs/qg/logs' \
        -logfile_train "/data1/lkx/cs/qg/logs/train_generator" \
        -logfile_dev "/data1/lkx/cs/qg/logs/valid_generator" \

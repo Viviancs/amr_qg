@@ -114,8 +114,8 @@ def get_data(dataset):
   final_indexes = []
   i = 0
   graph_dataset = {'indexes': [], 'is_ans': [], 'is_tgt':[], 'edge_in':[], 'edge_out':[]}
-  rst = {'src':[], 'tgt':[], 'amr_node': [],'ans':[], 'is_ans':[], 'is_tgt':[], 'feature':[]}
-  for nodes, in_neigh_indices, in_neigh_edges, out_neigh_indices, out_neigh_edges, sources, sentences, answer in dataset: 
+  rst = {'src':[], 'tgt':[], 'amr_node': [],'ans':[], 'is_ans':[], 'is_tgt':[], 'pos':[], 'feature':[]}
+  for nodes, in_neigh_indices, in_neigh_edges, out_neigh_indices, out_neigh_edges, sources, sentences, answer, pos_tag in dataset: 
     src_len = len(sources)
     tgt_len = len(sentences)
     if src_len <= opt.src_seq_length and tgt_len - 1 <= opt.tgt_seq_length:
@@ -125,6 +125,7 @@ def get_data(dataset):
         #if answer:
         rst['ans'].append(answer)
         rst['amr_node'].append(nodes)
+        rst['pos'].append(pos_tag)
         #print()
         sr_tags = []
         sr_tg_tags = []
@@ -177,7 +178,7 @@ def get_data(dataset):
 
   graph_dataset['features'] = [graph_dataset['is_ans'], graph_dataset['is_tgt']]
   #graph_dataset['features'] = [graph_dataset['is_ans']]
-  rst['features'] = [rst['is_ans'], rst['is_tgt']]
+  rst['features'] = [rst['is_ans'], rst['pos'], rst['is_tgt']]
 
   return rst, graph_dataset, final_indexes
 
@@ -361,7 +362,6 @@ def sequence_data(tr_dataset, va_dataset):
       }
     
   return seq_data, graph_data, (train_final_indexes, valid_final_indexes), (train_src_indexes, valid_src_indexes)
-
 
 
 def main():

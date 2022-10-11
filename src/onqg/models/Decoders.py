@@ -68,7 +68,7 @@ class RNNDecoder(nn.Module):
         self.answer = answer
         tmp_in = d_word_vec if answer else d_rnn_enc_model
         #self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=n_rnn_enc_layer)
-        self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=1)
+        self.decInit = DecInit(d_enc=tmp_in, d_dec=d_model, n_enc_layer=2)
 
         self.feature = False if not feat_vocab else True
         if self.feature:
@@ -131,8 +131,8 @@ class RNNDecoder(nn.Module):
         graph_hidden = inputs['graph_hidden'] #[batch_size, node_size, embedd]
 
         #对node信息进行线性映射并通过maxpooling得到graph-level信息
-        #graph_embedding = self.graph_pool(graph_hidden)
-        #hidden = torch.cat((graph_embedding, hidden), dim=-1) #将rnn隐藏层与graph隐藏层进行融合
+        graph_embedding = self.graph_pool(graph_hidden)
+        hidden = torch.cat((graph_embedding, hidden), dim=-1) #将rnn隐藏层与graph隐藏层进行融合
 
         src_pad_mask = Variable(src_seq.data.eq(Constants.PAD).float(), requires_grad=False, volatile=False)
         if self.layer_attn:

@@ -9,4 +9,4 @@ python preprocess_data.py /data1/lkx/cs/amr_qg/data/merge_data/train_with_simple
                      ${DATAHOME}/train_data/preprcessed_sequence_data.pt \
                      ${DATAHOME}/train_data/preprcessed_graph_data.pt \
                      ${DATAHOME}/train_data/train_dataset.pt \
-                     ${DATAHOME}/train_datavalid_dataset.pt
+                     ${DATAHOME}/train_data/valid_dataset.pt
