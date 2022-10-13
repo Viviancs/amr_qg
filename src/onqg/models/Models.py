@@ -73,6 +73,7 @@ class UnifiedModel(nn.Module):
         inputs['decoder']['enc_output'], inputs['decoder']['scores'], hidden, graph_hidden = self.decoder_transformer(inputs['decoder-transform'])
         inputs['decoder']['hidden'] = hidden
         inputs['decoder']['graph_hidden'] = graph_hidden
+        inputs['decoder']['graph_output'] = node_output
         dec_output = self.decoder(inputs['decoder'])
         outputs['generation'] = dec_output
         #========== generate =========#

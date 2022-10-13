@@ -129,6 +129,7 @@ class RNNDecoder(nn.Module):
         enc_output, hidden = inputs['enc_output'], inputs['hidden']
         feat_seqs = inputs['feat_seqs']
         graph_hidden = inputs['graph_hidden'] #[batch_size, node_size, embedd]
+        graph_output = inputs['graph_output']
 
         #对node信息进行线性映射并通过maxpooling得到graph-level信息
         graph_embedding = self.graph_pool(graph_hidden)
@@ -181,7 +182,7 @@ class RNNDecoder(nn.Module):
         #print("graph", graph_hidden.size())
         #print("===========")
         output = self.decoder(enc_output,     #mask机制
-                graph_hidden               
+                graph_output               
             )        
         #print(output.size())
         enc_output = torch.cat((output, enc_output), dim=-1)
