@@ -24,7 +24,7 @@ python train.py  -sequence_data '/data1/lkx/cs/qg/data/train_data/preprcessed_se
        -d_dec_model 256 -n_dec_layer 1 -dec_rnn gru \
        -maxout_pool_size 2 -n_warmup_steps 10000 \
        -dropout 0.5 -attn_dropout 0.1 \
-       -save_mode best -save_model '/data1/lkx/cs/qg/model/classifier/classifier_gl' \
+       -save_mode best -save_model '/data1/lkx/cs/qg/model/classifier/classifier_gl_fuse' \
        -log_home '/data1/lkx/cs/qg/logs' \
        -logfile_train '/data1/lkx/cs/qg/logs/train_classifier' \
        -logfile_dev '/data1/lkx/cs/qg/logs/valid_classifier' \
@@ -34,5 +34,5 @@ python train.py  -sequence_data '/data1/lkx/cs/qg/data/train_data/preprcessed_se
        -valid_steps 500 \
        -decay_steps 500 -start_decay_steps 5000 -decay_bad_cnt 5 \
        -max_grad_norm 5 -max_weight_value 20 \
-       -gpus 3 
+       -gpus 0 
 

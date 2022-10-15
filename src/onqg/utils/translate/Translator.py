@@ -91,9 +91,10 @@ class Translator(object):
                 model = model.module
             ### ========== Encode ========== ###
             seq_output, hidden = model.seq_encoder(inputs['seq-encoder'])
-            inputs['encoder-transform']['seq_output'] = seq_output
-            inputs['encoder-transform']['hidden'] = hidden
-            node_input, hidden = model.encoder_transformer(inputs['encoder-transform'], max_length)
+            node_output, hidden_node = model.node_encoder(inputs['node-encoder'])
+            inputs['encoder-transform']['seq_output'] = node_output
+            inputs['encoder-transform']['hidden'] = hidden_node
+            node_input, graph_hidden = model.encoder_transformer(inputs['encoder-transform'], max_length)
             inputs['graph-encoder']['nodes'] = node_input
             node_output, _ = model.graph_encoder(inputs['graph-encoder'])
             ##===== Decode =====##
@@ -106,7 +107,8 @@ class Translator(object):
         
             inputs['decoder']['enc_output'], inputs['decoder']['scores'], hidden, graph_hidden= model.decoder_transformer(inputs['decoder-transform'])
             inputs['decoder']['hidden'] = hidden
-            inputs['decoder']['graph_hidden'] = graph_hidden
+#            inputs['decoder']['graph_hidden'] = graph_hidden
+#            inputs['decoder']['graph_output'] = node_output
             #print("===============")
             #print(inputs['decoder']['enc_output'].size())
             #print(inputs['decoder']['hidden'].size())
@@ -114,6 +116,7 @@ class Translator(object):
             ### ========== Repeat for beam search ========== ###
             n_bm = self.opt.beam_size
             enc_output = inputs['decoder']['enc_output']
+            #print(enc_output.size())
             if self.opt.layer_attn:
                 n_inst, len_s, d_h = enc_output[0].size()
                 inputs['decoder']['enc_output'] = [src_layer.repeat(1, n_bm, 1).view(n_inst * n_bm, len_s, d_h) 
@@ -130,6 +133,7 @@ class Translator(object):
 
             n_inst_g, len_s_g, d_h_g = graph_hidden.size()
             inputs['decoder']['graph_hidden'] = graph_hidden.repeat(1, n_bm, 1).view(n_inst_g * n_bm, len_s_g, d_h_g )
+            inputs['decoder']['graph_output'] = node_output.repeat(1, n_bm, 1).view(n_inst_g * n_bm, len_s_g, d_h_g )
             #print("===============")
             #print(inputs['decoder']['enc_output'].size())
             #print(inputs['decoder']['hidden'].size())
@@ -145,7 +149,7 @@ class Translator(object):
                 n_active_inst = len(inst_idx_to_position_map)
                 ### ===== decoder forward ===== ###
                 inputs['decoder']['tgt_seq'] = prepare_beam_dec_seq(inst_dec_beams, len_dec_seq)     # (n_bm x batch_size) x len_dec_seq
-                
+
                 rst = model.decoder(inputs['decoder'])
                 rst['pred'] = model.generator(rst['pred'])
                 pred = rst['pred'][:, -1, :]

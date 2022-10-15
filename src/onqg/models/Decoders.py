@@ -182,9 +182,9 @@ class RNNDecoder(nn.Module):
         #print("graph", graph_hidden.size())
         #print("===========")
         output = self.decoder(enc_output,     #mask机制
-                graph_output               
+                graph_hidden               
             )        
-        #print(output.size())
+        #if output.size(0) == enc_output.size(0)
         enc_output = torch.cat((output, enc_output), dim=-1)
         #print("seq", enc_output.size())
         ##########
